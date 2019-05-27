@@ -34,7 +34,7 @@ import {
 } from "@atomist/sdm-pack-fingerprints";
 import * as bodyParser from "body-parser";
 import * as _ from "lodash";
-import { ReactElement } from "react";
+import { ReactElement, CSSProperties } from "react";
 import serveStatic = require("serve-static");
 import { OrgExplorer } from "../../views/org";
 import {
@@ -142,25 +142,28 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
 
             const featuresAndFingerprints = await featureManager.projectFingerprints(analysis);
 
+            const redStyle: CSSProperties = { color: "red" };
+            const greenStyle: CSSProperties = { color: "green" };
+
             // assign style based on ideal
             for (const featureAndFingerprints of featuresAndFingerprints) {
                 for (const fp of featureAndFingerprints.fingerprints) {
                     if (fp.ideal) {
                         if (fp.ideal.ideal === undefined) {
-                            (fp as any).style = "color:red";
+                            (fp as any).style = redStyle;
                             (fp as any).idealDisplayString = "eliminate";
                         } else {
                             const idealFP = fp.ideal.ideal;
                             if (idealFP.sha === fp.sha) {
-                                (fp as any).style = "color:green";
+                                (fp as any).style = greenStyle;
                             } else {
-                                (fp as any).style = "color:red";
+                                (fp as any).style = redStyle;
                                 const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
                                 (fp as any).idealDisplayString = toDisplayableFingerprint(idealFP);
                             }
                         }
                     } else {
-                        (fp as any).style = "";
+                        (fp as any).style = undefined;
                     }
                 }
             }
@@ -168,7 +171,7 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
             return res.send(renderStaticReactNode(ProjectExplorer({
                 owner: req.params.owner,
                 repo: req.params.repo,
-                features: featuresAndFingerprints,
+                features: featuresAndFingerprints as any,
             })));
 
             // return res.render("project", {
