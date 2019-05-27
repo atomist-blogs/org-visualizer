@@ -29,6 +29,7 @@ import {
 } from "@atomist/sdm-pack-fingerprints";
 import * as _ from "lodash";
 import { ProjectAnalysisResult } from "../analysis/ProjectAnalysisResult";
+import { CSSProperties } from "react";
 
 export function allFingerprints(ar: HasFingerprints | HasFingerprints[]): FP[] {
     const results = Array.isArray(ar) ? ar : [ar] as any;
@@ -83,7 +84,7 @@ export class DefaultFeatureManager implements FeatureManager {
 
     public async projectFingerprints(par: ProjectAnalysisResult): Promise<Array<{
         feature: ManagedFeature,
-        fingerprints: Array<FP & { ideal?: PossibleIdeal, stringified: string, displayName: string }>,
+        fingerprints: Array<FP & { ideal?: PossibleIdeal, stringified: string, displayName: string, style?: CSSProperties }>,
     }>> {
         const result = [];
         const allFingerprintsInOneProject: FP[] = allFingerprints(par.analysis);

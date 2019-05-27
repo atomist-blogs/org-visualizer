@@ -51,11 +51,11 @@ import {
     allManagedFingerprints,
     relevantFingerprints,
 } from "../feature/support/featureUtils";
-import { ProjectExplorer } from "../../views/project";
+import { ProjectExplorer, FingerprintForDisplay } from "../../views/project";
 
 function renderStaticReactNode(body: ReactElement,
-                               title?: string,
-                               extraScripts?: string[]): string {
+    title?: string,
+    extraScripts?: string[]): string {
     return ReactDOMServer.renderToStaticMarkup(
         TopLevelPage({
             bodyContent: body,
@@ -147,25 +147,35 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
 
             // assign style based on ideal
             for (const featureAndFingerprints of featuresAndFingerprints) {
+                const fingerprintsForDisplay: FingerprintForDisplay[] = [];
                 for (const fp of featureAndFingerprints.fingerprints) {
+                    let idealDisplayString = "";
+                    let style: CSSProperties = {};
+                    
                     if (fp.ideal) {
                         if (fp.ideal.ideal === undefined) {
-                            (fp as any).style = redStyle;
-                            (fp as any).idealDisplayString = "eliminate";
+                            style = redStyle;
+                            idealDisplayString = "eliminate";
                         } else {
                             const idealFP = fp.ideal.ideal;
                             if (idealFP.sha === fp.sha) {
-                                (fp as any).style = greenStyle;
+                                style = greenStyle;
                             } else {
-                                (fp as any).style = redStyle;
+                                style = redStyle;
                                 const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
-                                (fp as any).idealDisplayString = toDisplayableFingerprint(idealFP);
+                                idealDisplayString = toDisplayableFingerprint(idealFP);
                             }
                         }
                     } else {
-                        (fp as any).style = undefined;
+                        fp.style = {};
                     }
+                    fingerprintsForDisplay.push({
+                        ...fp,
+                        idealDisplayString,
+                        style,
+                    });
                 }
+                featureAndFingerprints.fingerprints = fingerprintsForDisplay as any;
             }
 
             return res.send(renderStaticReactNode(ProjectExplorer({
