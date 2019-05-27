@@ -52,6 +52,7 @@ import {
     relevantFingerprints,
 } from "../feature/support/featureUtils";
 import { ProjectExplorer, FingerprintForDisplay } from "../../views/project";
+import { MelbaFingerprintForDisplay } from "../feature/DefaultFeatureManager";
 
 function renderStaticReactNode(body: ReactElement,
     title?: string,
@@ -151,19 +152,32 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                 for (const fp of featureAndFingerprints.fingerprints) {
                     let idealDisplayString = "";
                     let style: CSSProperties = {};
-                    
+
+                    function idealIsElimination(fingerprint: MelbaFingerprintForDisplay): boolean {
+                        return fingerprint.ideal && fingerprint.ideal.ideal === undefined;
+                    }
+
+                    function idealIsDifferentFromActual(fingerprint: MelbaFingerprintForDisplay): boolean {
+                        return fp.ideal && fp.ideal.ideal !== undefined && fp.ideal.ideal.sha !== fp.sha;
+                    }
+
+                    if (idealIsDifferentFromActual(fp)) {
+                        const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
+                        idealDisplayString = toDisplayableFingerprint(fp.ideal.ideal);
+                    }
+                    if (idealIsElimination(fp)) {
+                        idealDisplayString = "eliminate";
+                    }
+
                     if (fp.ideal) {
                         if (fp.ideal.ideal === undefined) {
                             style = redStyle;
-                            idealDisplayString = "eliminate";
                         } else {
                             const idealFP = fp.ideal.ideal;
                             if (idealFP.sha === fp.sha) {
                                 style = greenStyle;
                             } else {
                                 style = redStyle;
-                                const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
-                                idealDisplayString = toDisplayableFingerprint(idealFP);
                             }
                         }
                     } else {
