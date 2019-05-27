@@ -164,11 +164,11 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                     }
                 }
             }
-            
+
             return res.send(renderStaticReactNode(ProjectExplorer({
                 owner: req.params.owner,
                 repo: req.params.repo,
-                features: featuresAndFingerprints.map(fafs => ({displayName: fafs.feature.displayName})),
+                features: featuresAndFingerprints,
             })));
 
             // return res.render("project", {

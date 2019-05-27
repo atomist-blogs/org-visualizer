@@ -1,8 +1,14 @@
 import * as React from "react";
-import { fingerprintImpactHandler } from "@atomist/sdm-pack-fingerprints";
+
+type DisplayName = string;
+
+export interface FingerprintForDisplay {
+    displayName: DisplayName;
+}
 
 export interface FeatureForDisplay {
-    displayName: string;
+    feature: { displayName: DisplayName };
+    fingerprints: FingerprintForDisplay[];
 }
 
 export interface ProjectExplorerProps {
@@ -24,5 +30,16 @@ export function ProjectExplorer(props: ProjectExplorerProps): React.ReactElement
 }
 
 function displayFeature(feature: FeatureForDisplay): React.ReactElement {
-    return <h3>{feature.displayName}</h3>;
-};
+    return <div>
+        <h3>{feature.feature.displayName}</h3>
+        <ul>
+            {feature.fingerprints.map(displayFingerprint)}
+        </ul>
+    </div>;
+}
+
+function displayFingerprint(fingerprint: FingerprintForDisplay): React.ReactElement {
+    return <li>
+        {fingerprint.displayName}
+    </li>;
+}
