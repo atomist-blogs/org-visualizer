@@ -37,7 +37,7 @@ import * as _ from "lodash";
 import { CSSProperties, ReactElement } from "react";
 import serveStatic = require("serve-static");
 import { OrgExplorer } from "../../views/org";
-import { FingerprintForDisplay, ProjectExplorer } from "../../views/project";
+import { FeatureForDisplay, FingerprintForDisplay, ProjectExplorer } from "../../views/project";
 import {
     ProjectForDisplay,
     ProjectList,
@@ -56,8 +56,8 @@ import {
 } from "../feature/support/featureUtils";
 
 function renderStaticReactNode(body: ReactElement,
-                               title?: string,
-                               extraScripts?: string[]): string {
+    title?: string,
+    extraScripts?: string[]): string {
     return ReactDOMServer.renderToStaticMarkup(
         TopLevelPage({
             bodyContent: body,
@@ -108,12 +108,6 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                 features,
                 importantFeatures,
             } as any)));
-            // res.render("home", {
-            //     actionableFingerprints,
-            //     repos,
-            //     features,
-            //     importantFeatures,
-            // });
         });
 
         express.get("/organization/:owner", ...handlers, async (req, res) => {
@@ -145,25 +139,20 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
             const featuresAndFingerprints = await featureManager.projectFingerprints(analysis);
 
             // assign style based on ideal
-            for (const featureAndFingerprints of featuresAndFingerprints) {
-                featureAndFingerprints.fingerprints = featureAndFingerprints.fingerprints.map(fp => ({
+            const yay: FeatureForDisplay[] = featuresAndFingerprints.map(featureAndFingerprints => ({
+                ...featureAndFingerprints,
+                fingerprints: featureAndFingerprints.fingerprints.map(fp => ({
                     ...fp,
                     idealDisplayString: displayIdeal(fp, featureAndFingerprints.feature),
                     style: displayStyleAccordingToIdeal(fp),
-                }));
-            }
+                })),
+            }));
 
             return res.send(renderStaticReactNode(ProjectExplorer({
                 owner: req.params.owner,
                 repo: req.params.repo,
-                features: featuresAndFingerprints as any,
+                features: yay,
             })));
-
-            // return res.render("project", {
-            //     owner: req.params.owner,
-            //     repo: req.params.repo,
-            //     features: featuresAndFingerprints,
-            // });
         });
 
         express.post("/setIdeal", ...handlers, async (req, res) => {
