@@ -53,6 +53,7 @@ import {
 } from "../feature/support/featureUtils";
 import { ProjectExplorer, FingerprintForDisplay } from "../../views/project";
 import { MelbaFingerprintForDisplay } from "../feature/DefaultFeatureManager";
+import { ManagedFeature } from "../feature/FeatureManager";
 
 function renderStaticReactNode(body: ReactElement,
     title?: string,
@@ -150,7 +151,17 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
             for (const featureAndFingerprints of featuresAndFingerprints) {
                 const fingerprintsForDisplay: FingerprintForDisplay[] = [];
                 for (const fp of featureAndFingerprints.fingerprints) {
-                    let idealDisplayString = "";
+                    function displayIdeal(fingerprint: MelbaFingerprintForDisplay, feature: ManagedFeature): string {
+                        if (idealIsDifferentFromActual(fp)) {
+                            const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
+                            return toDisplayableFingerprint(fp.ideal.ideal);
+                        }
+                        if (idealIsElimination(fp)) {
+                            return "eliminate";
+                        }
+                        return "";
+                    }
+
                     let style: CSSProperties = {};
 
                     function idealIsElimination(fingerprint: MelbaFingerprintForDisplay): boolean {
@@ -161,13 +172,6 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                         return fp.ideal && fp.ideal.ideal !== undefined && fp.ideal.ideal.sha !== fp.sha;
                     }
 
-                    if (idealIsDifferentFromActual(fp)) {
-                        const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
-                        idealDisplayString = toDisplayableFingerprint(fp.ideal.ideal);
-                    }
-                    if (idealIsElimination(fp)) {
-                        idealDisplayString = "eliminate";
-                    }
 
                     if (fp.ideal) {
                         if (fp.ideal.ideal === undefined) {
@@ -185,7 +189,7 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                     }
                     fingerprintsForDisplay.push({
                         ...fp,
-                        idealDisplayString,
+                        idealDisplayString: displayIdeal(fp, featureAndFingerprints.feature),
                         style,
                     });
                 }
