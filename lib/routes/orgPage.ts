@@ -34,9 +34,10 @@ import {
 } from "@atomist/sdm-pack-fingerprints";
 import * as bodyParser from "body-parser";
 import * as _ from "lodash";
-import { ReactElement, CSSProperties } from "react";
+import { CSSProperties, ReactElement } from "react";
 import serveStatic = require("serve-static");
 import { OrgExplorer } from "../../views/org";
+import { FingerprintForDisplay, ProjectExplorer } from "../../views/project";
 import {
     ProjectForDisplay,
     ProjectList,
@@ -46,18 +47,17 @@ import {
     SunburstQuery,
 } from "../../views/sunburstQuery";
 import { TopLevelPage } from "../../views/topLevelPage";
+import { MelbaFingerprintForDisplay } from "../feature/DefaultFeatureManager";
+import { ManagedFeature } from "../feature/FeatureManager";
 import { featureQueriesFrom } from "../feature/featureQueries";
 import {
     allManagedFingerprints,
     relevantFingerprints,
 } from "../feature/support/featureUtils";
-import { ProjectExplorer, FingerprintForDisplay } from "../../views/project";
-import { MelbaFingerprintForDisplay } from "../feature/DefaultFeatureManager";
-import { ManagedFeature } from "../feature/FeatureManager";
 
 function renderStaticReactNode(body: ReactElement,
-    title?: string,
-    extraScripts?: string[]): string {
+                               title?: string,
+                               extraScripts?: string[]): string {
     return ReactDOMServer.renderToStaticMarkup(
         TopLevelPage({
             bodyContent: body,
@@ -144,35 +144,13 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
 
             const featuresAndFingerprints = await featureManager.projectFingerprints(analysis);
 
-            const redStyle: CSSProperties = { color: "red" };
-            const greenStyle: CSSProperties = { color: "green" };
-
             // assign style based on ideal
             for (const featureAndFingerprints of featuresAndFingerprints) {
-                const fingerprintsForDisplay: FingerprintForDisplay[] = [];
-                for (const fp of featureAndFingerprints.fingerprints) {
-                    let style: CSSProperties = {};
-                    if (fp.ideal) {
-                        if (fp.ideal.ideal === undefined) {
-                            style = redStyle;
-                        } else {
-                            const idealFP = fp.ideal.ideal;
-                            if (idealFP.sha === fp.sha) {
-                                style = greenStyle;
-                            } else {
-                                style = redStyle;
-                            }
-                        }
-                    } else {
-                        fp.style = {};
-                    }
-                    fingerprintsForDisplay.push({
-                        ...fp,
-                        idealDisplayString: displayIdeal(fp, featureAndFingerprints.feature),
-                        style,
-                    });
-                }
-                featureAndFingerprints.fingerprints = fingerprintsForDisplay as any;
+                featureAndFingerprints.fingerprints = featureAndFingerprints.fingerprints.map(fp => ({
+                    ...fp,
+                    idealDisplayString: displayIdeal(fp, featureAndFingerprints.feature),
+                    style: displayStyleAccordingToIdeal(fp),
+                }));
             }
 
             return res.send(renderStaticReactNode(ProjectExplorer({
@@ -311,4 +289,24 @@ function idealIsElimination(fingerprint: MelbaFingerprintForDisplay): boolean {
 
 function idealIsDifferentFromActual(fingerprint: MelbaFingerprintForDisplay): boolean {
     return fingerprint.ideal && fingerprint.ideal.ideal !== undefined && fingerprint.ideal.ideal.sha !== fingerprint.sha;
+}
+
+function idealIsSameAsActual(fingerprint: MelbaFingerprintForDisplay): boolean {
+    return fingerprint.ideal && fingerprint.ideal.ideal !== undefined && fingerprint.ideal.ideal.sha === fingerprint.sha;
+}
+
+function displayStyleAccordingToIdeal(fingerprint: MelbaFingerprintForDisplay): CSSProperties {
+    const redStyle: CSSProperties = { color: "red" };
+    const greenStyle: CSSProperties = { color: "green" };
+
+    if (idealIsSameAsActual(fingerprint)) {
+        return greenStyle;
+    }
+    if (idealIsDifferentFromActual(fingerprint)) {
+        return redStyle;
+    }
+    if (idealIsElimination(fingerprint)) {
+        return redStyle;
+    }
+    return {};
 }
