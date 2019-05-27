@@ -51,6 +51,7 @@ import {
     allManagedFingerprints,
     relevantFingerprints,
 } from "../feature/support/featureUtils";
+import { ProjectExplorer } from "../../views/project";
 
 function renderStaticReactNode(body: ReactElement,
                                title?: string,
@@ -163,12 +164,18 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                     }
                 }
             }
-
-            return res.render("project", {
+            
+            return res.send(renderStaticReactNode(ProjectExplorer({
                 owner: req.params.owner,
                 repo: req.params.repo,
-                features: featuresAndFingerprints,
-            });
+                features: featuresAndFingerprints.map(fafs => ({displayName: fafs.feature.displayName})),
+            })));
+
+            // return res.render("project", {
+            //     owner: req.params.owner,
+            //     repo: req.params.repo,
+            //     features: featuresAndFingerprints,
+            // });
         });
 
         express.post("/setIdeal", ...handlers, async (req, res) => {
