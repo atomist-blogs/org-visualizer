@@ -151,28 +151,7 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
             for (const featureAndFingerprints of featuresAndFingerprints) {
                 const fingerprintsForDisplay: FingerprintForDisplay[] = [];
                 for (const fp of featureAndFingerprints.fingerprints) {
-                    function displayIdeal(fingerprint: MelbaFingerprintForDisplay, feature: ManagedFeature): string {
-                        if (idealIsDifferentFromActual(fp)) {
-                            const toDisplayableFingerprint = featureAndFingerprints.feature.toDisplayableFingerprint || (ffff => ffff.data);
-                            return toDisplayableFingerprint(fp.ideal.ideal);
-                        }
-                        if (idealIsElimination(fp)) {
-                            return "eliminate";
-                        }
-                        return "";
-                    }
-
                     let style: CSSProperties = {};
-
-                    function idealIsElimination(fingerprint: MelbaFingerprintForDisplay): boolean {
-                        return fingerprint.ideal && fingerprint.ideal.ideal === undefined;
-                    }
-
-                    function idealIsDifferentFromActual(fingerprint: MelbaFingerprintForDisplay): boolean {
-                        return fp.ideal && fp.ideal.ideal !== undefined && fp.ideal.ideal.sha !== fp.sha;
-                    }
-
-
                     if (fp.ideal) {
                         if (fp.ideal.ideal === undefined) {
                             style = redStyle;
@@ -313,4 +292,23 @@ export function jsonToQueryString(json: object): string {
     return Object.keys(json).map(key =>
         encodeURIComponent(key) + "=" + encodeURIComponent(json[key]),
     ).join("&");
+}
+
+function displayIdeal(fingerprint: MelbaFingerprintForDisplay, feature: ManagedFeature): string {
+    if (idealIsDifferentFromActual(fingerprint)) {
+        const toDisplayableFingerprint = feature.toDisplayableFingerprint || (ffff => ffff.data);
+        return toDisplayableFingerprint(fingerprint.ideal.ideal);
+    }
+    if (idealIsElimination(fingerprint)) {
+        return "eliminate";
+    }
+    return "";
+}
+
+function idealIsElimination(fingerprint: MelbaFingerprintForDisplay): boolean {
+    return fingerprint.ideal && fingerprint.ideal.ideal === undefined;
+}
+
+function idealIsDifferentFromActual(fingerprint: MelbaFingerprintForDisplay): boolean {
+    return fingerprint.ideal && fingerprint.ideal.ideal !== undefined && fingerprint.ideal.ideal.sha !== fingerprint.sha;
 }
