@@ -4,7 +4,7 @@ type DisplayName = string;
 
 export interface FingerprintForDisplay {
     displayName: DisplayName;
-    idealDisplayName: DisplayName;
+    idealDisplayString: string;
     stringified: string;
     style: React.CSSProperties;
 }
@@ -44,6 +44,6 @@ function displayFeature(feature: FeatureForDisplay): React.ReactElement {
 function displayFingerprint(fingerprint: FingerprintForDisplay): React.ReactElement {
     return <li style={fingerprint.style}>
         <i>{fingerprint.displayName}</i>: {fingerprint.stringified}
-        {fingerprint.idealDisplayName}
+        {" "} (Ideal: {fingerprint.idealDisplayString || "none"})
     </li>;
 }
