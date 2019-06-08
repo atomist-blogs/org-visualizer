@@ -166,7 +166,7 @@ export function orgPage(store: ProjectAnalysisResultStore): ExpressCustomizer {
                     query: req.query.name,
                 });
             }
-            const dataUrl = `/${req.query.filter ? "filter" : "fingerprint"}.json?${queryString}`;
+            const dataUrl = `/api/v1/${req.query.filter ? "filter" : "fingerprint"}?${queryString}`;
 
             const feature = featureManager.featureFor({ name: fingerprintName } as FP);
             const fingerprintDisplayName = defaultedToDisplayableFingerprintName(feature)(fingerprintName);

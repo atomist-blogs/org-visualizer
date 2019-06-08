@@ -39,13 +39,24 @@ export function api(store: ProjectAnalysisResultStore): ExpressCustomizer {
             extended: true,
         }));
 
+        express.get("/api/v1/fingerprints", ...handlers, async (req, res) => {
+            const workspaceId = req.query.workspace_id || "local";
+            const tree = await repoTree({
+                clientFactory: () => new Client({
+                    database: "org_viz",
+                }),
+                query: fingerprintsChildrenQuery(`workspace_id = '${workspaceId}'`),
+                rootName: req.query.name,
+            });
+            console.log(JSON.stringify(tree));
+            fillInFeatures(featureManager, tree);
+            res.json(tree);
+        });
+
 
         /* the d3 sunburst on the /query page uses this */
-        express.get("/fingerprint.json", ...handlers, async (req, res) => {
-            const workspaceId = req.query.workspace_id;
-            if (!workspaceId) {
-                throw new Error("workspace_id parameter must be provided");
-            }
+        express.get("/api/v1/fingerprint", ...handlers, async (req, res) => {
+            const workspaceId = req.query.workspace_id || "local";
             const tree = await repoTree({
                 clientFactory: () => new Client({
                     database: "org_viz",
@@ -59,7 +70,7 @@ export function api(store: ProjectAnalysisResultStore): ExpressCustomizer {
         });
 
         // In memory queries against returns
-        express.get("/filter.json", ...handlers, async (req, res) => {
+        express.get("/api/v1/filter", ...handlers, async (req, res) => {
             const repos = await store.loadWhere("workspace_id = 'local'");
 
             const featureQueries = await reportersAgainst(featureManager, repos.map(r => r.analysis));

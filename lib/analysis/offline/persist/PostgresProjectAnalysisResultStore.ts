@@ -28,25 +28,27 @@ import { ProjectAnalysis } from "@atomist/sdm-pack-analysis";
 
 export class PostgresProjectAnalysisResultStore implements ProjectAnalysisResultStore {
 
+    private readonly clientFactory: ClientFactory;
+
     public count(): Promise<number> {
-        return this.doWithClient(async client => {
+        return doWithClient(this.clientFactory, async client => {
             const rows = await client.query("SELECT COUNT(1) as c from repo_snapshots");
             return rows[0].c;
         });
     }
 
     public loadWhere(where: string): Promise<ProjectAnalysisResult[]> {
-        return this.doWithClient(async client => {
+        return doWithClient(this.clientFactory, async client => {
             const rows = await client.query(`SELECT (
                 owner, name, url, commit_sha, analysis, timestamp) from repo_snapshots ` +
-                where ? `WHERE ${where}` : "");
+            where ? `WHERE ${where}` : "");
             return rows;
         });
     }
 
     // TODO also check for sha
     public async loadOne(repo: RepoId): Promise<ProjectAnalysisResult> {
-        return this.doWithClient(async client => {
+        return doWithClient(this.clientFactory, async client => {
             const rows = await client.query(`SELECT (
                 owner, name, url, commit_sha, analysis, timestamp) from repo_snapshots
                 WHERE url = $1`, [repo.url]);
@@ -68,7 +70,7 @@ export class PostgresProjectAnalysisResultStore implements ProjectAnalysisResult
     }
 
     private async persistAnalysisResults(results: AsyncIterable<ProjectAnalysisResult> | ProjectAnalysisResult[]): Promise<number> {
-        return this.doWithClient(async client => {
+        return doWithClient(this.clientFactory, async client => {
             let persisted = 0;
             for await (const result of results) {
                 const repoRef = result.analysis.id;
@@ -112,25 +114,29 @@ values ($1, $2, $3, $4) ON CONFLICT DO NOTHING
         }
     }
 
-    private async doWithClient<R>(what: (c: Client) => Promise<R>): Promise<R> {
-        const client = new Client({
+    constructor(public readonly database: string = "org_viz") {
+        this.clientFactory = () => new Client({
             database: this.database,
         });
-        let result: R;
-        await client.connect();
-        try {
-            result = await what(client);
-        } catch (err) {
-            console.log(err);
-            process.exit(1);
-        } {
-            client.end();
-        }
-        return result;
     }
 
-    constructor(public readonly database: string = "org_viz") {
+}
 
+export type ClientFactory = () => Client;
+
+async function doWithClient<R>(clientFactory: () => Client,
+                               what: (c: Client) => Promise<R>): Promise<R> {
+    const client = clientFactory();
+    let result: R;
+    await client.connect();
+    try {
+        result = await what(client);
+    } catch (err) {
+        console.log(err);
+        process.exit(1);
     }
-
+    {
+        client.end();
+    }
+    return result;
 }
