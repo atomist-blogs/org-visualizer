@@ -15,16 +15,13 @@
  */
 
 import { Client } from "pg";
-import {
-    SunburstLeaf,
-    SunburstTree,
-} from "../tree/sunburst";
+import { SunburstTree, } from "../tree/sunburst";
 
-export interface QueryOpts {
+export interface TreeQuery {
+
+    clientFactory: () => Client;
 
     rootName: string;
-
-    //excludeNull: boolean;
 
     /**
      * SQL query. Must return form of value, repo info - Must be sorted by repo
@@ -33,7 +30,8 @@ export interface QueryOpts {
 }
 
 // Returns children
-export const fingerprintsChildrenQuery = `
+export function fingerprintsChildrenQuery(whereClause: string) {
+    return `
 SELECT row_to_json(fingerprint_groups) FROM (SELECT json_agg(fp) children
 FROM (
        SELECT
@@ -48,28 +46,27 @@ FROM (
                     AND repo_fingerprints.name = fingerprints.name 
                     AND repo_fingerprints.feature_name = fingerprints.feature_name
                     AND repo_snapshots.id = repo_fingerprints.repo_snapshot_id
+                    AND ${whereClause}
                 ) repo
          ) children
        FROM fingerprints WHERE fingerprints.name = $1
 ) fp) as fingerprint_groups
 `;
+}
 
 /**
  * Tree where children is one of a range of values, leaves individual repos with one of those values
- * @param {QueryOpts} opts
+ * @param {TreeQuery} opts
  * @return {Promise<SunburstTree>}
  */
-export async function repoTree(opts: QueryOpts): Promise<SunburstTree> {
-    const client = new Client({
-        database: "org_viz",
-    });
+export async function repoTree(opts: TreeQuery): Promise<SunburstTree> {
+    const client = opts.clientFactory();
     client.connect();
     try {
         console.log(opts.query);
         const results = await client.query(opts.query, [opts.rootName]);
         // TODO error checking
         const data = results.rows[0];
-        console.log("RAW: " + JSON.stringify(data));
         return {
             name: opts.rootName,
             children: data.row_to_json.children,
