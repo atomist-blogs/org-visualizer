@@ -120,8 +120,8 @@ values ($1, $2, $3, $4) ON CONFLICT DO NOTHING
 
 export type ClientFactory = () => Client;
 
-async function doWithClient<R>(clientFactory: () => Client,
-                               what: (c: Client) => Promise<R>): Promise<R> {
+export async function doWithClient<R>(clientFactory: () => Client,
+                                      what: (c: Client) => Promise<R>): Promise<R> {
     const client = clientFactory();
     let result: R;
     await client.connect();

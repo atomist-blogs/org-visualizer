@@ -26,8 +26,9 @@ import { reportersAgainst } from "../feature/reportersAgainst";
 import { fingerprintsChildrenQuery, repoTree, } from "../feature/repoTree";
 import { SunburstTree, visit, } from "../tree/sunburst";
 import { Client } from "pg";
-import { ClientFactory } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
+import { ClientFactory, doWithClient } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
 import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
+import { ProjectAnalysisResult } from "../analysis/ProjectAnalysisResult";
 
 /**
  * Public API routes, returning JSON
@@ -42,14 +43,9 @@ export function api(clientFactory: ClientFactory, store: ProjectAnalysisResultSt
 
         express.get("/api/v1/fingerprints", ...handlers, async (req, res) => {
             const workspaceId = req.query.workspace_id || "local";
-            const tree = await repoTree({
-                clientFactory,
-                query: fingerprintsChildrenQuery(`workspace_id = '${workspaceId}'`),
-                rootName: req.query.name,
-            });
-            console.log(JSON.stringify(tree));
-            fillInFeatures(featureManager, tree);
-            res.json(tree);
+            const fps = await fingerprints(clientFactory, workspaceId);
+            console.log(JSON.stringify(fps));
+            res.json(fps);
         });
 
         /* the d3 sunburst on the /query page uses this */
@@ -94,5 +90,22 @@ function fillInFeatures(fm: FeatureManager, t: SunburstTree) {
             }
         }
         return true;
+    });
+}
+
+export interface FingerprintData {
+    fingerprintName: string;
+    featureName: string;
+    appearsIn: number;
+}
+
+async function fingerprints(clientFactory: ClientFactory, workspaceId: string): Promise<FingerprintData[]> {
+    return doWithClient(clientFactory, async client => {
+        const sql = `SELECT distinct rf.name as fingerprintName, feature_name as featureName, count(rs.id) as appearsIn
+  from repo_fingerprints rf, repo_snapshots rs
+  WHERE rf.repo_snapshot_id = rs.id AND rs.workspace_id = $1
+  GROUP by feature_name, fingerprintName`;
+        const rows = await client.query(sql, [workspaceId]);
+        return rows.rows;
     });
 }

@@ -109,3 +109,9 @@ select  rf.feature_name as feature_name, rf.name as fingerprint_name, rf.sha as 
   where rs.workspace_id = 'local' AND rs.id = rf.repo_snapshot_id
   group by feature_name, sha, fingerprint_name
   order by appears_in DESC;
+
+
+SELECT distinct rf.name as fingerprintName, feature_name as featureName, count(rs.id) as appearsIn
+  from repo_fingerprints rf, repo_snapshots rs
+  WHERE rf.repo_snapshot_id = rs.id AND rs.workspace_id = 'local'
+  GROUP by feature_name, fingerprintName;
