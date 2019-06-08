@@ -20,7 +20,7 @@ import {
     configureSdm,
 } from "@atomist/sdm-core";
 import {
-    analysisResultStore,
+    analysisResultStore, clientFactory,
     machine,
 } from "./lib/machine/machine";
 import { allowFraming } from "./lib/routes/allowFraming";
@@ -56,7 +56,7 @@ export const configuration: Configuration = {
         configureSdm(machine, machineOptions),
         async cfg => {
             cfg.http.customizers = [
-                api(analysisResultStore),
+                api(clientFactory, analysisResultStore),
                 orgPage(analysisResultStore),
                 allowFraming("https://blog.atomist.com"),
             ];

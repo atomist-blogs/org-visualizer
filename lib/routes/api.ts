@@ -16,7 +16,6 @@
 
 import { ExpressCustomizer } from "@atomist/automation-client/lib/configuration";
 import { Express, RequestHandler, } from "express";
-import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
 import { featureManager, } from "./features";
 import { WellKnownReporters } from "./wellKnownReporters";
 import { FP, } from "@atomist/sdm-pack-fingerprints";
@@ -27,11 +26,13 @@ import { reportersAgainst } from "../feature/reportersAgainst";
 import { fingerprintsChildrenQuery, repoTree, } from "../feature/repoTree";
 import { SunburstTree, visit, } from "../tree/sunburst";
 import { Client } from "pg";
+import { ClientFactory } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
+import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
 
 /**
  * Public API routes, returning JSON
  */
-export function api(store: ProjectAnalysisResultStore): ExpressCustomizer {
+export function api(clientFactory: ClientFactory, store: ProjectAnalysisResultStore): ExpressCustomizer {
     return (express: Express, ...handlers: RequestHandler[]) => {
 
         express.use(bodyParser.json());       // to support JSON-encoded bodies
@@ -42,9 +43,7 @@ export function api(store: ProjectAnalysisResultStore): ExpressCustomizer {
         express.get("/api/v1/fingerprints", ...handlers, async (req, res) => {
             const workspaceId = req.query.workspace_id || "local";
             const tree = await repoTree({
-                clientFactory: () => new Client({
-                    database: "org_viz",
-                }),
+                clientFactory,
                 query: fingerprintsChildrenQuery(`workspace_id = '${workspaceId}'`),
                 rootName: req.query.name,
             });
@@ -53,14 +52,11 @@ export function api(store: ProjectAnalysisResultStore): ExpressCustomizer {
             res.json(tree);
         });
 
-
         /* the d3 sunburst on the /query page uses this */
         express.get("/api/v1/fingerprint", ...handlers, async (req, res) => {
             const workspaceId = req.query.workspace_id || "local";
             const tree = await repoTree({
-                clientFactory: () => new Client({
-                    database: "org_viz",
-                }),
+                clientFactory,
                 query: fingerprintsChildrenQuery(`workspace_id = '${workspaceId}'`),
                 rootName: req.query.name,
             });

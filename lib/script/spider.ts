@@ -21,7 +21,6 @@
  * Main entry point script. Added as a binary in package.json
  */
 
-import { FileSystemProjectAnalysisResultStore } from "../analysis/offline/persist/FileSystemProjectAnalysisResultStore";
 import { GitHubSpider } from "../analysis/offline/spider/github/GitHubSpider";
 import { Spider } from "../analysis/offline/spider/Spider";
 import { createAnalyzer } from "../machine/machine";
@@ -33,6 +32,8 @@ import { firstSubprojectFinderOf } from "../analysis/subprojectFinder";
 import { fileNamesSubprojectFinder } from "../analysis/fileNamesSubprojectFinder";
 import * as yargs from "yargs";
 import { PostgresProjectAnalysisResultStore } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
+
+import { Client } from "pg";
 
 // Ensure we see console logging, and send info to the console
 configureLogging(MinimalLogging);
@@ -66,7 +67,9 @@ async function spider(params: SpiderOptions) {
 
     const spider: Spider = new GitHubSpider();
     const persister = //new FileSystemProjectAnalysisResultStore();
-        new PostgresProjectAnalysisResultStore();
+        new PostgresProjectAnalysisResultStore(() => new Client({
+            database: "org_viz",
+        }));
     const query = params.query || `org:${org}` + searchInRepoName;
 
     const result = await spider.spider({

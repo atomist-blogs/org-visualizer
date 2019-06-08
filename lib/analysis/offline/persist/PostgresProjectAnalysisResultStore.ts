@@ -28,8 +28,6 @@ import { ProjectAnalysis } from "@atomist/sdm-pack-analysis";
 
 export class PostgresProjectAnalysisResultStore implements ProjectAnalysisResultStore {
 
-    private readonly clientFactory: ClientFactory;
-
     public count(): Promise<number> {
         return doWithClient(this.clientFactory, async client => {
             const rows = await client.query("SELECT COUNT(1) as c from repo_snapshots");
@@ -39,10 +37,11 @@ export class PostgresProjectAnalysisResultStore implements ProjectAnalysisResult
 
     public loadWhere(where: string): Promise<ProjectAnalysisResult[]> {
         return doWithClient(this.clientFactory, async client => {
-            const rows = await client.query(`SELECT (
-                owner, name, url, commit_sha, analysis, timestamp) from repo_snapshots ` +
-            where ? `WHERE ${where}` : "");
-            return rows;
+            const sql = `SELECT owner, name, url, commit_sha, analysis, timestamp 
+                from repo_snapshots ` +
+                (where ? `WHERE ${where}` : "");
+            const rows = await client.query(sql);
+            return rows.rows;
         });
     }
 
@@ -114,10 +113,7 @@ values ($1, $2, $3, $4) ON CONFLICT DO NOTHING
         }
     }
 
-    constructor(public readonly database: string = "org_viz") {
-        this.clientFactory = () => new Client({
-            database: this.database,
-        });
+    constructor(public readonly clientFactory: ClientFactory) {
     }
 
 }
@@ -133,9 +129,8 @@ async function doWithClient<R>(clientFactory: () => Client,
         result = await what(client);
     } catch (err) {
         console.log(err);
-        process.exit(1);
     }
-    {
+    finally {
         client.end();
     }
     return result;
