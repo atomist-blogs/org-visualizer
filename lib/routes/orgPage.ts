@@ -15,30 +15,56 @@
  */
 
 import { ExpressCustomizer } from "@atomist/automation-client/lib/configuration";
-import { Express, RequestHandler, } from "express";
+import {
+    Express,
+    RequestHandler,
+} from "express";
 import * as ReactDOMServer from "react-dom/server";
 import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
-import { featureManager, setIdeal, } from "./features";
+import {
+    featureManager,
+    setIdeal,
+} from "./features";
 import { WellKnownReporters } from "./wellKnownReporters";
 
 import { logger } from "@atomist/automation-client";
-import { FP, PossibleIdeal, } from "@atomist/sdm-pack-fingerprints";
+import {
+    FP,
+    PossibleIdeal,
+} from "@atomist/sdm-pack-fingerprints";
 import * as bodyParser from "body-parser";
 import * as _ from "lodash";
-import { CSSProperties, ReactElement, } from "react";
+import {
+    CSSProperties,
+    ReactElement,
+} from "react";
 import { OrgExplorer } from "../../views/org";
-import { FeatureForDisplay, ProjectExplorer, } from "../../views/project";
-import { ProjectForDisplay, ProjectList, } from "../../views/projectList";
-import { PossibleIdealForDisplay, SunburstQuery, } from "../../views/sunburstQuery";
+import {
+    FeatureForDisplay,
+    ProjectExplorer,
+} from "../../views/project";
+import {
+    ProjectForDisplay,
+    ProjectList,
+} from "../../views/projectList";
+import {
+    PossibleIdealForDisplay,
+    SunburstQuery,
+} from "../../views/sunburstQuery";
 import { TopLevelPage } from "../../views/topLevelPage";
 import {
     defaultedToDisplayableFingerprint,
     defaultedToDisplayableFingerprintName,
     MelbaFingerprintForDisplay,
 } from "../feature/DefaultFeatureManager";
-import { ManagedFeature, } from "../feature/FeatureManager";
+import {
+    ManagedFeature,
+} from "../feature/FeatureManager";
 import { reportersAgainst } from "../feature/reportersAgainst";
-import { allManagedFingerprints, relevantFingerprints, } from "../feature/support/featureUtils";
+import {
+    allManagedFingerprints,
+    relevantFingerprints,
+} from "../feature/support/featureUtils";
 import serveStatic = require("serve-static");
 
 function renderStaticReactNode(body: ReactElement,

@@ -15,18 +15,36 @@
  */
 
 import { ExpressCustomizer } from "@atomist/automation-client/lib/configuration";
-import { Express, RequestHandler, } from "express";
-import { featureManager, } from "./features";
+import {
+    Express,
+    RequestHandler,
+} from "express";
+import {
+    featureManager,
+} from "./features";
 import { WellKnownReporters } from "./wellKnownReporters";
-import { FP, } from "@atomist/sdm-pack-fingerprints";
+import {
+    FP,
+} from "@atomist/sdm-pack-fingerprints";
 import * as bodyParser from "body-parser";
 import * as _ from "lodash";
-import { FeatureManager, } from "../feature/FeatureManager";
+import {
+    FeatureManager,
+} from "../feature/FeatureManager";
 import { reportersAgainst } from "../feature/reportersAgainst";
-import { fingerprintsChildrenQuery, repoTree, } from "../feature/repoTree";
-import { SunburstTree, visit, } from "../tree/sunburst";
+import {
+    fingerprintsChildrenQuery,
+    repoTree,
+} from "../feature/repoTree";
+import {
+    SunburstTree,
+    visit,
+} from "../tree/sunburst";
 import { Client } from "pg";
-import { ClientFactory, doWithClient } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
+import {
+    ClientFactory,
+    doWithClient,
+} from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
 import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
 import { ProjectAnalysisResult } from "../analysis/ProjectAnalysisResult";
 

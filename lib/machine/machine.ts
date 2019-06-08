@@ -24,25 +24,36 @@ import {
     SoftwareDeliveryMachineConfiguration,
 } from "@atomist/sdm";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
-import { analyzerBuilder, ProjectAnalyzer, } from "@atomist/sdm-pack-analysis";
+import {
+    analyzerBuilder,
+    ProjectAnalyzer,
+} from "@atomist/sdm-pack-analysis";
 import { circleScanner } from "@atomist/uhura/lib/element/circle/circleScanner";
 import { jenkinsScanner } from "@atomist/uhura/lib/element/jenkins/jenkinsScanner";
 import { reactScanner } from "@atomist/uhura/lib/element/react/reactScanner";
 import { travisScanner } from "@atomist/uhura/lib/element/travis/travisScanner";
 
-import { logger, } from "@atomist/automation-client";
-import { nodeStackSupport, } from "@atomist/sdm-pack-analysis-node";
+import {
+    logger,
+} from "@atomist/automation-client";
+import {
+    nodeStackSupport,
+} from "@atomist/sdm-pack-analysis-node";
 import { DockerScanner } from "@atomist/uhura/lib/element/docker/dockerScanner";
 import { gitlabCiScanner } from "@atomist/uhura/lib/element/gitlab-ci/gitlabCiScanner";
 import { ProjectAnalysisResultStore } from "../analysis/offline/persist/ProjectAnalysisResultStore";
 import { codeMetricsScanner } from "../element/codeMetricsElement";
 import { CodeOfConductScanner } from "../element/codeOfConduct";
 import { packageLockScanner } from "../element/packageLock";
-import { featureManager, features, idealConvergenceScorer, } from "../routes/features";
+import {
+    featureManager,
+    features,
+    idealConvergenceScorer,
+} from "../routes/features";
 import { GitActivityScanner } from "./gitActivityScanner";
 import {
     ClientFactory,
-    PostgresProjectAnalysisResultStore
+    PostgresProjectAnalysisResultStore,
 } from "../analysis/offline/persist/PostgresProjectAnalysisResultStore";
 
 /**

@@ -20,7 +20,8 @@ import {
     configureSdm,
 } from "@atomist/sdm-core";
 import {
-    analysisResultStore, clientFactory,
+    analysisResultStore,
+    clientFactory,
     machine,
 } from "./lib/machine/machine";
 import { allowFraming } from "./lib/routes/allowFraming";
