@@ -55,6 +55,7 @@ export interface FeatureForDisplay {
 function displayImportantFeature(f: FeatureForDisplay, i: number): React.ReactElement {
 
     const key = "collapsible" + i;
+    const expandByDefault = f.fingerprints.length <= 1;
 
     // <div class="wrap-collabsible">
     //     <input id="collapsible" class="toggle" type="checkbox">
@@ -70,7 +71,7 @@ function displayImportantFeature(f: FeatureForDisplay, i: number): React.ReactEl
     //         </div>
     // </div>
     return <div className="wrap-collabsible">
-        <input id={key} className="toggle" type="checkbox"></input>
+        <input id={key} className="toggle" type="checkbox" checked={expandByDefault}></input>
         <label htmlFor={key} className="lbl-toggle">{f.feature.displayName} ({f.fingerprints.length})</label>
         <div className="collapsible-content">
             <div className="content-inner">
