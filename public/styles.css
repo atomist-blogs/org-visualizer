@@ -43,7 +43,7 @@ header .page-title {
     padding-left: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
-    background: indianred;
+    background: rgba(34, 106, 106, 0.2);
 }
 
 /* d3 sunburst stuff */
@@ -86,17 +86,17 @@ input[type='checkbox'] {
     font-family: monospace;
     font-size: 1.2rem;
     text-transform: uppercase;
-    text-align: center;
+    text-align: left;
     padding: 1rem;
-    color: #A77B0E;
-    background: #FAE042;
+    color: #2a2a2a;
+    background: rgb(186, 216, 95);
     cursor: pointer;
     border-radius: 7px;
     transition: all 0.25s ease-out;
 }
 
 .lbl-toggle:hover {
-    color: #7C5A0B;
+    color: rgb(34, 106, 106);
 }
 
 .lbl-toggle::before {
@@ -131,8 +131,8 @@ input[type='checkbox'] {
 }
 
 .collapsible-content .content-inner {
-    background: rgba(250, 224, 66, .2);
-    border-bottom: 1px solid rgba(250, 224, 66, .45);
+    background: rgba(186, 216, 95, 0.75);
+    border-bottom: 1px solid rgba(186, 216, 95, .45);
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
     padding: .5rem 1rem;
