@@ -52,14 +52,32 @@ export interface FeatureForDisplay {
     fingerprints: FingerprintForDisplay[];
 }
 
-function displayImportantFeature(f: FeatureForDisplay): React.ReactElement {
-    return <div>
-        <h3>{f.feature.displayName}</h3>
-        <ul>
-            {f.fingerprints.map(fingerprintListItem)}
-        </ul>
+function displayImportantFeature(f: FeatureForDisplay, i: number): React.ReactElement {
 
-    </div>;
+    const key = "collapsible" + i;
+
+    // <div class="wrap-collabsible">
+    //     <input id="collapsible" class="toggle" type="checkbox">
+    //         <label for="collapsible" class="lbl-toggle">More Info</label>
+    //         <div class="collapsible-content">
+    //             <div class="content-inner">
+    //                 <p>
+    //                     QUnit is by calling one of the object that are embedded in JavaScript, and faster JavaScript program could also used with
+    //                     its elegant, well documented, and functional programming using JS, HTML pages Modernizr is a popular browsers without
+    //                     plug-ins. Test-Driven Development.
+    //       </p>
+    //             </div>
+    //         </div>
+    // </div>
+    return <div className="wrap-collabsible">
+        <input id={key} className="toggle" type="checkbox"></input>
+        <label htmlFor={key} className="lbl-toggle">{f.feature.displayName} ({f.fingerprints.length})</label>
+        <div className="collapsible-content">
+            <div className="content-inner">
+                <ul>
+                    {f.fingerprints.map(fingerprintListItem)}
+                </ul>
+            </div></div></div>;
 }
 
 export interface FingerprintForDisplay extends MaybeAnIdeal {
