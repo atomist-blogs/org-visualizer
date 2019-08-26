@@ -67,6 +67,7 @@ import {
     License,
     LicensePresence,
 } from "../lib/aspect/community/license";
+import { NodeEngine } from "../aspect/community/nodeEngine";
 import {
     ChangelogAspect,
     ContributingAspect,
@@ -185,6 +186,7 @@ function aspects(): Aspect[] {
         // Based on license, decide the presence of a license: Not spread
         LicensePresence,
         new CodeOwnership(),
+        NodeEngine,
         NpmDeps,
         CodeOfConduct,
         ExposedSecrets,
