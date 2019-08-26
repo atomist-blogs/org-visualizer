@@ -53,6 +53,7 @@ import {
     MavenDefaultOptions,
 } from "@atomist/sdm-pack-spring";
 import * as _ from "lodash";
+import { NodeEngine } from "../aspect/community/nodeEngine";
 import { PostgresProjectAnalysisResultStore } from "../lib/analysis/offline/persist/PostgresProjectAnalysisResultStore";
 import {
     CombinationTagger,
@@ -67,7 +68,6 @@ import {
     License,
     LicensePresence,
 } from "../lib/aspect/community/license";
-import { NodeEngine } from "../aspect/community/nodeEngine";
 import {
     ChangelogAspect,
     ContributingAspect,
