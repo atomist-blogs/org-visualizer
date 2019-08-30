@@ -21,10 +21,10 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "peerDependencies": {
-    "@atomist/automation-client": "*",
+    "@atomist/automation-client": "^1.6.2",
     "@atomist/microgrammar": "^1.2.1",
-    "@atomist/sdm": "*",
-    "@atomist/sdm-core": "+",
+    "@atomist/sdm": "^1.6.1",
+    "@atomist/sdm-core": "^1.6.1",
     "@atomist/sdm-pack-build": "^1.0.5",
     "@atomist/sdm-pack-clojure": "^2.0.0",
     "@atomist/sdm-pack-docker": "*",
@@ -69,10 +69,10 @@
     "zip-a-folder": "0.0.8"
   },
   "devDependencies": {
-    "@atomist/automation-client": "1.6.3-master.20190827162443",
+    "@atomist/automation-client": "^1.6.2",
     "@atomist/microgrammar": "^1.2.1",
-    "@atomist/sdm": "1.6.2-master.20190827182350",
-    "@atomist/sdm-core": "1.6.2-master.20190827182244",
+    "@atomist/sdm": "^1.6.1",
+    "@atomist/sdm-core": "^1.6.1",
     "@atomist/sdm-local": "^1.1.0",
     "@atomist/sdm-pack-build": "^1.0.5",
     "@atomist/sdm-pack-clojure": "^2.0.0",
