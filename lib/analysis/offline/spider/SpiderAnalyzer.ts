@@ -90,16 +90,19 @@ async function runExtracts(p: Project,
             )));
 }
 
+/**
+ * This will run the consolidation aspects sequentially in order, passing in the result of previous consolidated fingerprints into
+ * later aspects that consolidate.
+ */
 async function runConsolidates(p: Project,
                                pili: PushImpactListenerInvocation,
                                aspects: Aspect[],
                                fingerprints: FP[],
                                repoTracking: RepoBeingTracked): Promise<void> {
-    await Promise.all(aspects
-        .map(aspect => safeConsolidate(aspect, fingerprints, p, pili, repoTracking.plan(aspect, "consolidate"))
-            .then(fps =>
-                fingerprints.push(...fps),
-            )));
+    for (const aspect of aspects) {
+        const consolidatedFingerprints = await safeConsolidate(aspect, fingerprints, p, pili, repoTracking.plan(aspect, "consolidate"));
+        fingerprints.push(...consolidatedFingerprints);
+    }
 }
 
 async function safeTimedExtract(aspect: Aspect,
