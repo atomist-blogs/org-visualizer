@@ -50,8 +50,8 @@ function displayRepository(repo: AnalysisTrackingRepo & { repoAnalysisId: string
     const aspectSummary = repo.progress === "Planned" || repo.keptExisting ? undefined : summarizeAspects(repo.aspects);
     return <div className={className}>
         <p className="analysisRepoDescription">{repo.description} {gitLink} {insightsLink} </p>
-        <span className="timeTakenToAnalyzeRepo">{timeTaken}</span>
-        <span className="aboutVirtualProjects">{virtualProjectsDescription}</span>
+        <section className="timeTakenToAnalyzeRepo">{timeTaken}</section>
+        <section className="aboutVirtualProjects">{virtualProjectsDescription}</section>
         {displayFailure(repo)}
         {aspectSummary}
     </div>;
